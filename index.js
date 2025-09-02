@@ -1,5 +1,3 @@
-console.log("Starting..");
-
 const body = document.querySelector("body");
 const logo = document.createElement("h1");
 const form = document.createElement("form");
@@ -9,62 +7,57 @@ const todoList = document.createElement("div");
 const filterButton1 = document.createElement("button");
 const filterButton2 = document.createElement("button");
 const filterButton3 = document.createElement("button");
+const filterButtonContainer = document.createElement("div");
+const deleteAllButton = document.createElement("button");
 
 const filterButtons = [filterButton1, filterButton2, filterButton3];
+const formElements = [input, button];
+let todos = JSON.parse(localStorage.getItem("todos")) || [];
+let currentFilter = JSON.parse(localStorage.getItem("filter")) || "ALL";
 
-const filterButtonContainer = document.createElement("div");
+const buttonTexts = ["ALL", "UNDONE", "DONE"];
 
-filterButtons.forEach((button) => {
+filterButtons.forEach((button, i) => {
   filterButtonContainer.appendChild(button);
+  button.innerText = buttonTexts[i];
+  button.addEventListener("click", () => {
+    currentFilter = button.innerText;
+    localStorage.setItem("filter", JSON.stringify(buttonTexts[i]));
+    renderTodos();
+  });
 });
 
 filterButtonContainer.classList.add("filterButtons");
 
-const formElements = [input, button];
-// If todos are on localstorage available load it else use an empty array as container
-let todos = JSON.parse(localStorage.getItem("todos")) || [];
-// If currentFilter was already selected load it, else default value ist ALL;
-let currentFilter = JSON.parse(localStorage.getItem("filter")) || "ALL";
+logo.classList.add("logo");
+logo.innerText = "Vanilla's TODO";
+deleteAllButton.classList.add("deleteAllBtn");
+form.classList.add("form");
+todoList.classList.add("todoList");
 
-// IFFE function aka iffy
-(() => {
-  logo.classList.add("logo");
-  logo.innerText = "Vanilla's TODO";
-  form.classList.add("form");
-  button.type = "Submit";
-  button.innerText = "Add Todo";
-  todoList.classList.add("todoList");
-  filterButton1.innerText = "SHOW ALL";
-  filterButton2.innerText = "UNDONE";
-  filterButton3.innerText = "DONE";
+button.type = "Submit";
 
-  filterButton1.addEventListener("click", () => filterTodos("ALL"));
-  filterButton2.addEventListener("click", () => filterTodos("UNDONE"));
-  filterButton3.addEventListener("click", () => filterTodos("DONE"));
+button.innerText = "Add Todo";
+deleteAllButton.innerText = "Delete All"
 
-  form.append(...formElements);
-  body.append(logo, filterButtonContainer, form, todoList);
+deleteAllButton.addEventListener("click", () => deleteAllTodos());
+form.addEventListener("submit", (e) => {
+  addTodo(e);
+});
 
-  renderTodos();
-})();
+form.append(...formElements);
+body.append(logo, filterButtonContainer, deleteAllButton, form, todoList);
 
-function filterTodos(selectedFilter) {
-  currentFilter = selectedFilter;
-  localStorage.setItem("filter", JSON.stringify(selectedFilter));
-  renderTodos();
-}
-
-function toggleRender(id) {
+function toggleTodo(id) {
   todos = todos.map((todo) =>
     todo.id === id ? { ...todo, done: !todo.done } : todo
   );
-  saveAndReloadTodos();
+  saveTodo();
   renderTodos();
 }
 
 function addTodo(e) {
   e.preventDefault();
-
   if (input.value.trim() === "") return;
 
   const newTodo = {
@@ -75,7 +68,7 @@ function addTodo(e) {
 
   todos.push(newTodo);
 
-  saveAndReloadTodos();
+  saveTodo();
   renderTodos();
 
   input.value = "";
@@ -85,12 +78,12 @@ function deleteTodo(id) {
   const index = todos.findIndex((todo) => todo.id === id);
   if (index !== -1) {
     todos = todos.toSpliced(index, 1);
-    saveAndReloadTodos();
+    saveTodo();
     renderTodos();
   }
 }
 
-function saveAndReloadTodos() {
+function saveTodo() {
   localStorage.setItem("todos", JSON.stringify(todos));
 }
 
@@ -113,24 +106,28 @@ function renderTodos() {
     const editBtn = document.createElement("button");
 
     div.classList.add("todo");
+    li.classList.add("todo-text");
+    editBtn.classList.add("editBtn");
+    deleteBtn.classList.add("delete-todo-button");
     div.id = `todo-${todo.id}`;
     div.draggable = true;
+
     if (String(todo.id).slice(-1) === "0") {
       div.draggable = false;
     }
+
     li.innerText = todo.text;
     li.dataset.id = todo.id;
     toggleBtn.innerText = todo.done ? "✅" : "⬜️";
     editBtn.innerText = "✏️";
-    editBtn.classList.add("editBtn");
     deleteBtn.innerText = "X";
 
     div.addEventListener("dragstart", (e) => dragSTART(e));
     div.addEventListener("dragover", (e) => e.preventDefault());
     div.addEventListener("drop", (e) => dropped(e));
 
-    toggleBtn.addEventListener("click", () => toggleRender(todo.id));
-    editBtn.addEventListener("click", () => editTodo(todo.id));
+    toggleBtn.addEventListener("click", () => toggleTodo(todo.id));
+    editBtn.addEventListener("click", () => editTodo(div, todo.id));
     deleteBtn.addEventListener("click", () => deleteTodo(todo.id));
 
     div.append(toggleBtn, li, editBtn, deleteBtn);
@@ -138,24 +135,34 @@ function renderTodos() {
   });
 }
 
-function editTodo(id) {
-  const div = document.getElementById(`todo-${id}`);
-  if (!div) return;
+const editTodo = (todoContainer, id) => {
+  const todo = todos.find((todo) => todo.id === id);
 
-  const todo = todos.find((t) => t.id === id);
-  if (!todo) return;
-
-  div.innerHTML = "";
-  div.classList.add("editTodo");
+  todoContainer.innerHTML = "";
 
   const input = document.createElement("input");
-  const saveBtn = document.createElement("button");
-
-  input.type = "text";
-  input.classList.add("editInput");
+  const button = document.createElement("button");
+  button.innerText = "Save";
   input.value = todo.text;
-  saveBtn.innerText = "💾";
 
+  input.classList.add("edit-input")
+  button.classList.add("save-button")
+
+  todoContainer.append(input, button);
+
+  function saveEdit() {
+    if (input.value.trim() === "") return;
+    todo.text = input.value;
+    saveTodo();
+    renderTodos();
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      input.value = todo.text;
+      saveEdit();
+    }
+  });
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -163,20 +170,8 @@ function editTodo(id) {
     }
   });
 
-  saveBtn.addEventListener("click", saveEdit);
-
-  function saveEdit() {
-    const newText = input.value.trim();
-    if (newText === "") return;
-
-    todo.text = newText;
-    saveAndReloadTodos();
-    renderTodos();
-  }
-
-  div.append(input, saveBtn);
-  input.focus();
-}
+  button.addEventListener("click", () => saveEdit());
+};
 
 function dropped(e) {
   e.preventDefault();
@@ -202,11 +197,18 @@ function dropped(e) {
 
   todos = newOrder;
 
-  saveAndReloadTodos();
+  saveTodo();
 }
 
 function dragSTART(e) {
   e.dataTransfer.setData("text/plain", e.target.id);
 }
 
-form.addEventListener("submit", addTodo);
+const deleteAllTodos = () => {
+  todos.length = 0;
+  localStorage.removeItem("todos");
+  saveTodo();
+  renderTodos();
+};
+
+renderTodos();

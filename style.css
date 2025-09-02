@@ -26,6 +26,22 @@ body {
   font-size: 0.8rem;
   width: 33.33%;
   background-color: white;
+  cursor: pointer;
+}
+.filterButtons button:hover {
+  scale: 0.98;
+}
+.deleteAllBtn {
+  padding: 1rem 1.8rem;
+  font-size: 1.2rem;
+  width: 100%;
+  background-color: rgb(196, 93, 93);
+  color: white;
+  margin: 0.2rem auto;
+  cursor: pointer;
+}
+.deleteAllBtn:hover {
+  scale: 0.99;
 }
 .form {
   display: flex;
@@ -36,11 +52,11 @@ body {
   margin-top: 1rem;
   border: 0.7rem double white;
 }
-.form input {
+.form input, .edit-input {
   padding: 0.6rem;
   width: 60%;
 }
-.form button {
+.form button, .save-button {
   width: 40%;
   padding: 0.6rem;
 }
@@ -93,7 +109,7 @@ body {
   justify-content: space-between;
 }
 .editInput {
-  padding: .6rem;
+  padding: 0.6rem;
   width: 92%;
   font-size: 1.3rem;
   border: none;
