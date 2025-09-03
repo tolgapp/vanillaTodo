@@ -43,8 +43,9 @@ body {
   border: 0.7rem double white;
 }
 .form input {
-  padding: 0.6rem;
+  padding: .6rem;
   width: 85%;
+  height: 100%;
 }
 .form button {
   width: 15%;
@@ -132,7 +133,6 @@ body {
   color: white;
   font-size: 2rem;
 }
-
 .hidden {
   display: none;
 }
