@@ -1,6 +1,6 @@
 body {
   height: fit-content;
-  background-color: #07575b;
+  background-color: #021b1c;
   max-width: 100%;
 }
 [draggable="true"] {
@@ -11,10 +11,12 @@ body {
 }
 .logo {
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   color: white;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  padding: 0rem;
+  margin: 1.2rem 0;
 }
 .filterButtons {
   display: flex;
@@ -25,23 +27,11 @@ body {
   padding: 1rem 1.8rem;
   font-size: 0.8rem;
   width: 33.33%;
-  background-color: white;
+  background-color: rgb(234, 234, 234);
   cursor: pointer;
 }
 .filterButtons button:hover {
   scale: 0.98;
-}
-.deleteAllBtn {
-  padding: 1rem 1.8rem;
-  font-size: 1.2rem;
-  width: 100%;
-  background-color: rgb(196, 93, 93);
-  color: white;
-  margin: 0.2rem auto;
-  cursor: pointer;
-}
-.deleteAllBtn:hover {
-  scale: 0.99;
 }
 .form {
   display: flex;
@@ -52,22 +42,23 @@ body {
   margin-top: 1rem;
   border: 0.7rem double white;
 }
-.form input, .edit-input {
+.form input {
   padding: 0.6rem;
-  width: 60%;
+  width: 85%;
 }
-.form button, .save-button {
-  width: 40%;
+.form button {
+  width: 15%;
   padding: 0.6rem;
+  cursor: pointer;
 }
 .todoList {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem 0;
+  padding-bottom: .9rem;
   max-width: 100%;
   height: fit-content;
-  padding-bottom: 5rem;
 }
 .todo {
   display: flex;
@@ -114,7 +105,34 @@ body {
   font-size: 1.3rem;
   border: none;
 }
-.editTodo button {
+.save-button {
   width: 8%;
   border: none;
+  cursor: pointer;
+}
+.deleteBtnContainer {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  font-size: 2rem;
+}
+.changeBtn {
+  padding: .5rem 1rem;
+  font-size: 1.2rem;
+  width: 100%;
+  background-color: rgb(196, 93, 93);
+  color: white;
+  margin: 0 auto 2.5rem 0;
+  cursor: pointer;
+}
+.leftBtn, .rightBtn {
+  width: 3rem;
+  height: 2.6rem;
+  background-color: rgb(196, 93, 93);
+  color: white;
+  font-size: 2rem;
+}
+
+.hidden {
+  display: none;
 }

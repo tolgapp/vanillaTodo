@@ -8,12 +8,72 @@ const filterButton1 = document.createElement("button");
 const filterButton2 = document.createElement("button");
 const filterButton3 = document.createElement("button");
 const filterButtonContainer = document.createElement("div");
-const deleteAllButton = document.createElement("button");
+const deleteBtnContainer = document.createElement("div");
+
+const changeButtonFunction = ["Delete All", "Delete Done", "Delete Undone"];
+
+const leftButton = document.createElement("button");
+const rightButton = document.createElement("button");
+const deleteButton = document.createElement("button");
+let currentButtonIndex = 0;
+
+leftButton.innerText = "<";
+deleteBtnContainer.classList.add("deleteBtnContainer");
+leftButton.classList.add("leftBtn");
+rightButton.classList.add("rightBtn");
+deleteButton.innerText = changeButtonFunction[currentButtonIndex];
+deleteButton.classList.add("changeBtn");
+rightButton.innerText = ">";
+
+leftButton.addEventListener("click", () => {
+  currentButtonIndex =
+    (currentButtonIndex - 1 + changeButtonFunction.length) %
+    changeButtonFunction.length;
+  deleteButton.innerText = changeButtonFunction[currentButtonIndex];
+  console.log(currentButtonIndex);
+});
+
+rightButton.addEventListener("click", () => {
+  currentButtonIndex = (currentButtonIndex + 1) % changeButtonFunction.length;
+  deleteButton.innerText = changeButtonFunction[currentButtonIndex];
+});
+
+deleteButton.addEventListener("click", () => handleBtnChange());
+
+const handleBtnChange = () => {
+  console.log(
+    "Current button action: ",
+    changeButtonFunction[currentButtonIndex]
+  );
+  if (changeButtonFunction[currentButtonIndex] === "Delete All") {
+    deleteAllTodos();
+  } else if (changeButtonFunction[currentButtonIndex] === "Delete Done") {
+    deleteDone();
+  } else if (changeButtonFunction[currentButtonIndex] === "Delete Undone") {
+    deleteUndone();
+  }
+};
+
+deleteBtnContainer.append(leftButton, deleteButton, rightButton);
+
+const deleteDone = () => {
+  todos = todos.filter((todo) => !todo.done);
+  saveTodo();
+  renderTodos();
+};
+
+const deleteUndone = () => {
+  todos = todos.filter((todo) => todo.done);
+  saveTodo();
+  renderTodos();
+};
 
 const filterButtons = [filterButton1, filterButton2, filterButton3];
 const formElements = [input, button];
 let todos = JSON.parse(localStorage.getItem("todos")) || [];
 let currentFilter = JSON.parse(localStorage.getItem("filter")) || "ALL";
+
+// FIXME: Hide if todos 0 else visible
 
 const buttonTexts = ["ALL", "UNDONE", "DONE"];
 
@@ -31,22 +91,18 @@ filterButtonContainer.classList.add("filterButtons");
 
 logo.classList.add("logo");
 logo.innerText = "Vanilla's TODO";
-deleteAllButton.classList.add("deleteAllBtn");
 form.classList.add("form");
 todoList.classList.add("todoList");
 
 button.type = "Submit";
 
 button.innerText = "Add Todo";
-deleteAllButton.innerText = "Delete All"
-
-deleteAllButton.addEventListener("click", () => deleteAllTodos());
 form.addEventListener("submit", (e) => {
   addTodo(e);
 });
 
 form.append(...formElements);
-body.append(logo, filterButtonContainer, deleteAllButton, form, todoList);
+body.append(logo, filterButtonContainer, form, todoList, deleteBtnContainer);
 
 function toggleTodo(id) {
   todos = todos.map((todo) =>
@@ -112,9 +168,9 @@ function renderTodos() {
     div.id = `todo-${todo.id}`;
     div.draggable = true;
 
-    if (String(todo.id).slice(-1) === "0") {
-      div.draggable = false;
-    }
+    // if (String(todo.id).slice(-1) === "0") {
+    //   div.draggable = false;
+    // }
 
     li.innerText = todo.text;
     li.dataset.id = todo.id;
@@ -133,6 +189,12 @@ function renderTodos() {
     div.append(toggleBtn, li, editBtn, deleteBtn);
     todoList.append(div);
   });
+
+   if (filteredTodos.length > 2) {
+     deleteBtnContainer.classList.remove("hidden");
+   } else {
+     deleteBtnContainer.classList.add("hidden");
+   }
 }
 
 const editTodo = (todoContainer, id) => {
@@ -145,8 +207,8 @@ const editTodo = (todoContainer, id) => {
   button.innerText = "Save";
   input.value = todo.text;
 
-  input.classList.add("edit-input")
-  button.classList.add("save-button")
+  input.classList.add("editInput");
+  button.classList.add("save-button");
 
   todoContainer.append(input, button);
 
